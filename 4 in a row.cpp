@@ -3,11 +3,11 @@
 using namespace std;
 
 const int RED = 6, KOL = 7, DUB = 4;
-const char IGRAC = 'X', AI = 'O', PRAZNO = '.';
+const char IGRAC = 'X', AI = 'O', PRAZNO = '.'; 
 
-vector<vector<char>> tabla(RED, vector<char>(KOL, PRAZNO));
+vector<vector<char>> tabla(RED, vector<char>(KOL, PRAZNO)); // deklaracija table
 
-void printTabla() {
+void printTabla() { // printovanje table prolazeci kroz svako polje
     for (auto& red : tabla) {
         for (char polje : red) cout << polje << ' ';
         cout << '\n';
@@ -16,9 +16,9 @@ void printTabla() {
     cout << '\n';
 }
 
-bool validanpotez(int c) { return tabla[0][c] == PRAZNO; }
+bool validanpotez(int c) { return tabla[0][c] == PRAZNO; } // ako je odredjeno polje prazno, moze se odigrati potez u njega
 
-bool pravipotez(int c, char p) {
+bool pravipotez(int c, char p) { // u prvo prazno polje se upisuje potez igraca ili ai
     for (int r = RED - 1; r >= 0; r--){
         if (tabla[r][c] == PRAZNO){
             tabla[r][c] = p;
@@ -28,12 +28,12 @@ bool pravipotez(int c, char p) {
     return false;
 }
 
-void vratipotez(int c) {
+void vratipotez(int c) { // praznjenje polja da bi se dalje isprobavale kombinacije za najbolji moguci rezultat
     for (int r = 0; r < RED; r++)
         if (tabla[r][c] != PRAZNO) { tabla[r][c] = PRAZNO; break; }
 }
 
-bool pobeda(char p) {
+bool pobeda(char p) { // proveravanje ako u nekom redu, koloni, ili dijagonalama postoji pobeda
     for (int r = 0; r < RED; r++)
         for (int c = 0; c < KOL - 3; c++)
             if (tabla[r][c] == p && tabla[r][c+1] == p && tabla[r][c+2] == p && tabla[r][c+3] == p)
@@ -53,7 +53,7 @@ bool pobeda(char p) {
     return false;
 }
 
-int score(char p) {
+int score(char p) { // na osnovu scorea se odredjuje u kakvoj se poziciji nalazi igrac ili ai po tome koliko ima svojih elemenata u redu
     int s = 0;
     for (int r = 0; r < RED; r++)
         for (int c = 0; c < KOL - 3; c++) {
@@ -69,15 +69,16 @@ int score(char p) {
 int minimax(int d, bool p) {
     if (pobeda(AI)) return 10000;
     if (pobeda(IGRAC)) return -10000;
-    if (d == 0) return score(AI) - score(IGRAC);
+    if (d == 0) return score(AI) - score(IGRAC); /* nakon zavrsetka gledanja poteza unapred vraca razliku scorea za ai i za igraca,
+                                                    ako je pozitivan u prednosti je ai ako je negativan u prednosti je igrac*/
 
     if (p) {
-        int maxprocena = -100000;
+        int maxprocena = -100000; // 4 poteza unapred isprobava moguce poteze za ai i igraca i time odredjuje procenjenu vrednost te pozicije
         for (int c = 0; c < KOL; c++) {
             if (!validanpotez(c)) continue;
             pravipotez(c, AI);
             int procena = minimax(d-1, false);
-            vratipotez(c);
+            vratipotez(c); 
             maxprocena = max(maxprocena, procena);
         }
         return maxprocena;
@@ -94,7 +95,7 @@ int minimax(int d, bool p) {
     }
 }
 
-int najboljipotez() {
+int najboljipotez() { // slicno kao minimax, samo sto nakon izvrsavanja proverava i odredjuje najvecu vrednost tj score za optimalni rezultat
     int naj = -1, najvred = -100000;
     for (int c = 0; c < KOL; c++) {
         if (!validanpotez(c)) continue;
